@@ -1,0 +1,39 @@
+.temp-val {
+    font-size: 5em;
+}
+
+.ex-hot {
+    color: #ff2828;
+}
+
+.ver-hot {
+    color: #ff5e25;
+}
+
+.hot {
+    color: #ff8218;
+}
+
+.brisk {
+    color: #fdff5a;
+}
+
+.cool {
+    color: #83ff6b;
+}
+
+.cold {
+    color: #2beeff;
+}
+
+.ver-cold {
+    color: #4cb0ff;
+}
+
+.ex-cold {
+    color: #7e92e2;
+}
+
+.text-center {
+    text-align: center;
+}

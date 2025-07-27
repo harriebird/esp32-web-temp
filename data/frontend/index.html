@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="color-scheme" content="light dark">
   <title>ESP32 Web Temperature</title>
-  <script type="module" crossorigin src="/assets/index-DTuUkvFL.js"></script>
+  <script type="module" crossorigin src="/assets/index-Cw5qMT-W.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/index-BWVMsS1X.css">
 </head>
 <body>
@@ -15,10 +15,12 @@
   </header>
   <main class="container">
     <div>
-      <div v-if="store.getCurrentPage() == 'home'" v-scope="HomePage()"></div>
-      <div v-else-if="store.getCurrentPage() == 'chart'" v-scope="ChartPage()"></div>
-      <div v-else-if="store.getCurrentPage() == 'about'" v-scope="AboutPage()"></div>
-      <div v-else v-scope="HomePage()"></div>
+      <section>
+        <div v-scope="Temperatures()"></div>
+      </section>
+      <section>
+        <div v-scope="TemperatureChart()" @vue:mounted="renderChart()"></div>
+      </section>
     </div>
   </main>
 </div>
@@ -26,40 +28,31 @@
 <template id="top-navbar">
   <nav>
     <ul>
-      <li><a href="#" @click="store.setCurrentPage('home')"><strong>ESP32 Web Temperature</strong></a></li>
+      <li><strong>ESP32 Web Temperature</strong></li>
     </ul>
     <ul>
       <li>
-        <select>
-          <option @click="store.setCurrentPage('home')">Home</option>
-          <option @click="store.setCurrentPage('chart')">View Chart</option>
-          <option @click="store.setCurrentPage('about')">About</option>
-        </select>
+        <button @click="deleteDB()">Delete Database</button>
       </li>
     </ul>
   </nav>
 </template>
 
-<template id="home-page">
-  <h1>Home Page</h1>
-  <h3>Wazzup hommie!</h3>
+<template id="temperatures">
+  <h2>Current Temperature</h2>
   <div class="grid">
     <article class="text-center">
       <h5>Sensor Temperature</h5>
-      <span class="temp-val ex-hot">{{ store.getSensorTemp() }}°C</span>
+      <span class="temp-val" aria-busy="true" v-if="store.getSensorTemp() === -500"></span>
+      <span class="temp-val" v-else>{{ store.getSensorTemp()  }}°C</span>
     </article>
   </div>
 </template>
 
-<template id="chart-page">
-  <h1>View Chart</h1>
-  <h3>Live chart here yo!</h3>
+<template id="chart">
+  <h2>Temperature Chart</h2>
   <canvas id="live-chart"></canvas>
 </template>
 
-<template id="about-page">
-  <h1>About ESP32 Web Temperature</h1>
-  <h3>This project made to demonstrate the capability of ESP32 serve a web application using moder web frameworks.</h3>
-</template>
 </body>
 </html>

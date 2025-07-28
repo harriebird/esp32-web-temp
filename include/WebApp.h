@@ -5,13 +5,13 @@
 
 PsychicHttpServer webServer;
 PsychicWebSocketHandler webSocketHandler;
-float temperature = 0;
+float externalTemperature = 0;
+float internalTemperature = 0;
 
 void initWebapp() {
     LittleFS.begin();
     webServer.listen(80);
-    // initTemperatureSensor();
-    Serial.begin(115200);
+    initTemperatureSensor();
 
     webSocketHandler.onOpen([](PsychicWebSocketClient *client) {
         client->sendMessage("success");
@@ -20,7 +20,12 @@ void initWebapp() {
     webSocketHandler.onFrame([](PsychicWebSocketRequest *request, httpd_ws_frame *frame) {
         const String message = reinterpret_cast<char *>(frame->payload);
         if (message == "get_temp") {
-            return request->reply("25.2");
+            internalTemperature = temperatureRead();
+            externalTemperature = getTemperature();
+            String payload = "";
+            payload.concat("{\"internal\": " + String(internalTemperature));
+            payload.concat(", \"external\": "+ String(externalTemperature) + "}");
+            return request->reply(payload.c_str());
         }
         return request->reply("not_found");
     });

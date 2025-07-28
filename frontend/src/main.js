@@ -13,18 +13,12 @@ const webSocket = new WebSocket("ws://" + location.hostname + "/socket")
 const db = new Dexie("ESP32WebTemp")
 
 db.version(1).stores({
-    readings: "++id, timestamp, temperature"
+    readings: "++id, timestamp, internal_temp, external_temp"
 })
 
 const store = reactive({
-    sensorTemp: -500,
-
-    getSensorTemp() {
-        return this.sensorTemp
-    },
-    setSensorTemp(temp) {
-        this.sensorTemp = temp
-    }
+    internalTemp: -500,
+    externalTemp: -500
 })
 
 function TopNavbar(props) {
@@ -46,9 +40,10 @@ function TemperatureChart(props) {
                 type: "line",
                 data: {
                     labels: readings.map(row => row.timestamp),
-                    datasets: [{
-                        label: "Temperature in °C (Celsius)", data: readings.map(row => row.temperature),
-                    }]
+                    datasets: [
+                        { label: "ESP32 Temperature in °C (Celsius)", data: readings.map(row => row.internal_temp) },
+                        { label: "Environment Temperature in °C (Celsius)", data: readings.map(row => row.external_temp) }
+                    ]
                 },
                 options: {
                     scales: {
@@ -59,19 +54,22 @@ function TemperatureChart(props) {
                         y: {
                             grid: { color: "#666" }
                         }
+                    },
+                    elements: {
+                        line: { tension: 0.4 }
                     }
                 }
             })
 
             setInterval(async () => {
-                webSocket.send("get_temp");
+                webSocket.send("get_temp")
                 let timestamp = new Date()
-                let reading = store.getSensorTemp()
-                if(reading !== -500) {
+                if(store.internalTemp !== -500 && store.externalTemp !== -500 ) {
                     liveChart.data.labels.push(timestamp)
-                    liveChart.data.datasets[0].data.push(store.getSensorTemp())
+                    liveChart.data.datasets[0].data.push(store.internalTemp)
+                    liveChart.data.datasets[1].data.push(store.externalTemp)
                     liveChart.update()
-                    await db.readings.add({timestamp: timestamp, temperature: reading})
+                    await db.readings.add({timestamp: timestamp, internal_temp: store.internalTemp, external_temp: store.externalTemp})
                 }
 
             }, 5000)
@@ -90,11 +88,18 @@ createApp({
     TopNavbar,
     TemperatureChart,
     Temperatures,
-}).mount("#app");
+}).mount("#app")
 
 webSocket.onmessage = (e) => {
-    if (!isNaN(e.data)) {
-        let temperature = parseFloat(e.data);
-        store.setSensorTemp(temperature);
+    let message = {}
+    try {
+        message = JSON.parse(e.data)
+        store.internalTemp = message.internal
+        store.externalTemp = message.external
     }
+    catch (e) {}
+}
+
+webSocket.onclose = (e) => {
+    location.reload()
 }

@@ -41,9 +41,14 @@
   <h2>Current Temperature</h2>
   <div class="grid">
     <article class="text-center">
-      <h5>Sensor Temperature</h5>
-      <span class="temp-val" aria-busy="true" v-if="store.getSensorTemp() === -500"></span>
-      <span class="temp-val" v-else>{{ store.getSensorTemp()  }}°C</span>
+      <h5>ESP32 Temperature</h5>
+      <span class="temp-val" aria-busy="true" v-if="store.internalTemp === -500"></span>
+      <span class="temp-val" v-else>{{ store.internalTemp  }}°C</span>
+    </article>
+    <article class="text-center">
+      <h5>Environment Temperature</h5>
+      <span class="temp-val" aria-busy="true" v-if="store.externalTemp === -500"></span>
+      <span class="temp-val" v-else>{{ store.externalTemp  }}°C</span>
     </article>
   </div>
 </template>
